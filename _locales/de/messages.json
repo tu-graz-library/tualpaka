@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "TU Alpaka"
+  },
+  "extensionDesc": {
+    "message": "Vereinfachung der Alma Bedienung"
+  },
+  "mainLibrary": {
+    "message": "Name der Hauptbibliothek"
+  },
+  "subLibraries": {
+    "message": "Name der Fachbibliotheken"
+  }
+}

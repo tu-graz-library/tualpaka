@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "TU Alpaka"
+  },
+  "extensionDesc": {
+    "message": "Improve the usability of Alma"
+  },
+  "mainLibrary": {
+    "message": "Name of the main library"
+  },
+  "subLibraries": {
+    "message": "Names of the sub libraries"
+  }
+}
