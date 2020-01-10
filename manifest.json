@@ -1,0 +1,61 @@
+{
+  "description": "__MSG_extensionDesc__",
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "version": "1.0.0",
+  "default_locale": "de",
+  "homepage_url": "https://ub.tugraz.at",
+  "icons": {
+    "48": "icons/alpaka-reading-48.png",
+    "32": "icons/alpaka-reading-32.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.alma.exlibrisgroup.com/*"],
+      "js": [
+        "vendor/handlebars.min.js",
+        "vendor/loglevel.min.js",
+        "src/UserManagement.js",
+        "src/Label.js",
+        "tualpaka.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "icons/alpaka-reading-32.png",
+    "theme_icons": [{
+        "light": "icons/alpaka-reading-32.png",
+        "dark": "icons/alpaka-reading-32.png",
+        "size": 32
+    }],
+    "default_title": "TU Alpaka"
+  },
+  "options_ui": {
+    "browser_style": true,
+    "page": "settings/options.html"
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "permissions": [
+    "tabs",
+    "*://*.alma.exlibrisgroup.com/*",
+    "https://*.exlibrisgroup.com/almaws/v1",
+    "webRequest",
+    "cookies",
+    "storage",
+    "activeTab",
+    "contextMenus",
+    "webNavigation"
+  ],
+  "applications": {
+    "gecko": {
+      "id": "tu-alpaka-graz@christoph.ladurner.tugraz.at"
+    }
+  },
+  "web_accessible_resources": [
+    "icons/alpaka-reading-48.png"
+  ]
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="options.js"></script>
+    <style>
+     body {
+         margin-top: 10px;
+     }
+
+     ul {
+         margin: 0;
+         padding: 0;
+     }
+
+     li {
+         display: flex;
+         list-style: none;
+         padding: 3px 0;
+     }
+
+     label {
+         width: 200px;
+     }
+    </style>
+  </head>
+  <body>
+    <form>
+      <ul>
+        <li>
+          <label for="mainLibrary"><span data-i18n="mainLibrary"></span></label>
+          <input type="text" id="mainLibrary" name="mainLibrary" size="35"/>
+        </li>
+        <li>
+          <label for="subLibraries"><span data-i18n="subLibraries"></span></label>
+          <input type="text" id="subLibraries" name="subLibraries" size="35"/>
+        </li>
+      </ul>
+    </form>
+  </body>
+</html>
