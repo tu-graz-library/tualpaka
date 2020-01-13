@@ -75,18 +75,15 @@ class Label {
   }
 
   beautifySignature(data) {
-    const signature_prefixes = ["I", "II", "III", "IV", "IIII", "ZI", "ZII", "ZIII", "ZIV"];
+    const beautify = (signature) => {
+      signature.forEach((sig, index) => {
+        if (sig[0] != "Z" && !isNaN(sig)) {
+          let pos = sig.indexOf("/");
+          pos = pos === -1 ? sig.length : pos;
 
-    const beautify = (sig) => {
-      if (signature_prefixes.includes(sig[0])) {
-        let pos = sig[1].indexOf("/");
-        pos = pos === -1 ? sig[1].length : pos;
-
-        sig[1] = new Intl.NumberFormat('de-DE').format(sig[1].substring(0, pos)) + sig[1].substring(pos);
-      }
-
-      if (sig[0][0] == "Z")
-        sig[0] = `${sig[0][0]} ${sig[0].slice(1)}`;
+          signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos)) + sig.substring(pos);
+        }
+      });
     };
 
     if (data.main)
