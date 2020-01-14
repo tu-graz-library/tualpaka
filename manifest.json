@@ -13,6 +13,7 @@
     {
       "matches": ["*://*.alma.exlibrisgroup.com/*"],
       "js": [
+        "initMutationObserver.js",
         "vendor/handlebars.min.js",
         "vendor/loglevel.min.js",
         "src/UserManagement.js",
