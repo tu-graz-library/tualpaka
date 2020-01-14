@@ -18,6 +18,9 @@ function overrideEnterForReceiving() {
     return;
 
   const overrideEnter = (event) => {
+    if (event.key != 'Enter')
+      return true;
+
     event.preventDefault();
 
     event.target.parentNode.parentNode.querySelector("a[title='Eingang']").click();
