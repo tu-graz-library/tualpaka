@@ -18,6 +18,7 @@
         "vendor/loglevel.min.js",
         "src/UserManagement.js",
         "src/Label.js",
+        "src/Receiving.js",
         "tualpaka.js"
       ],
       "all_frames": true
