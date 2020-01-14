@@ -12,31 +12,6 @@
  *
  **/
 
-(function () {
-  const mutationCallback = function () {
-    document.querySelectorAll(".recordOuterContainer").forEach((element) => {
-      const li = `
-                <li class="rowAction internalRowAction">
-                  <a class="submitUrl" href="#" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
-                    Print Label
-                  </a>
-                </li>
-            `;
-
-      const domParser = new DOMParser(),
-            html = domParser.parseFromString(li, "text/html");
-
-      element.querySelector(".dropdown-menu").appendChild(html.body.firstChild);
-    });
-  };
-
-  const target = document.querySelector("#loadingBlockerStatusIdentifier"),
-        config = {attributes: true},
-        observer = new MutationObserver(mutationCallback);
-
-  observer.observe(target, config);
-})();
-
 class Label {
   constructor(id) {
     this.id = id;
@@ -138,6 +113,23 @@ class Label {
   }
 }
 
+function addButtonPrintLabel() {
+  document.querySelectorAll(".recordOuterContainer").forEach((element) => {
+    const li = `
+                <li class="rowAction internalRowAction">
+                  <a class="submitUrl" href="#" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
+                    Print Label
+                  </a>
+                </li>
+            `;
+
+    const domParser = new DOMParser(),
+          html = domParser.parseFromString(li, "text/html");
+
+    element.querySelector(".dropdown-menu").appendChild(html.body.firstChild);
+  });
+}
+
 function insertAt(str, pos, sub) {
   return `${str.slice(0, pos)}${sub}${str.slice(pos)}`;
 }
@@ -160,3 +152,4 @@ async function printLabel(message) {
 }
 
 window.addEventListener("message", printLabel);
+window.loadingBlockerEvents.push(addButtonPrintLabel);

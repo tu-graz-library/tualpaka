@@ -13,10 +13,12 @@
     {
       "matches": ["*://*.alma.exlibrisgroup.com/*"],
       "js": [
+        "initMutationObserver.js",
         "vendor/handlebars.min.js",
         "vendor/loglevel.min.js",
         "src/UserManagement.js",
         "src/Label.js",
+        "src/Receiving.js",
         "tualpaka.js"
       ],
       "all_frames": true
