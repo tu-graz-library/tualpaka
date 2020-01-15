@@ -10,5 +10,8 @@
   },
   "subLibraries": {
     "message": "Names of the sub libraries"
+  },
+  "save": {
+    "message": "Save"
   }
 }

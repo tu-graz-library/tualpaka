@@ -10,5 +10,8 @@
   },
   "subLibraries": {
     "message": "Name der Fachbibliotheken"
+  },
+  "save": {
+    "message": "Speichern"
   }
 }
