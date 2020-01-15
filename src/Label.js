@@ -70,7 +70,8 @@ class Label {
 
   async removeElementsForInstituteLabel(data) {
     const storage = await browser.storage.local.get('tualpaka'),
-          libraries = [storage.mainLibrary, ...storage.subLibraries];
+          tualpaka = storage.tualpaka || {},
+          libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
 
     if (libraries.includes(data.main.library)) {
       delete data.main.library;
