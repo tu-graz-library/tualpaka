@@ -79,7 +79,7 @@ class Label {
     }
   }
 
-  retrieveData() {
+  async retrieveData() {
     let obj = this.lines,
         data = {};
 
@@ -108,7 +108,7 @@ class Label {
 
     this.setIfTwoOrOneLabel(data);
     this.beautifySignature(data);
-    this.removeElementsForInstituteLabel(data);
+    await this.removeElementsForInstituteLabel(data);
 
     return data;
   }
@@ -143,7 +143,7 @@ async function printLabel(message) {
     return;
 
   const label = new Label(message.data.id),
-        data = label.retrieveData();
+        data = await label.retrieveData();
 
   const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'label'}),
         tpl = Handlebars.compile(tag),
