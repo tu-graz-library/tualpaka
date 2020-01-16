@@ -70,7 +70,8 @@ class Label {
 
   async removeElementsForInstituteLabel(data) {
     const storage = await browser.storage.local.get('tualpaka'),
-          libraries = [storage.mainLibrary, ...storage.subLibraries];
+          tualpaka = storage.tualpaka || {},
+          libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
 
     if (libraries.includes(data.main.library)) {
       delete data.main.library;
@@ -78,7 +79,7 @@ class Label {
     }
   }
 
-  retrieveData() {
+  async retrieveData() {
     let obj = this.lines,
         data = {};
 
@@ -107,7 +108,7 @@ class Label {
 
     this.setIfTwoOrOneLabel(data);
     this.beautifySignature(data);
-    this.removeElementsForInstituteLabel(data);
+    await this.removeElementsForInstituteLabel(data);
 
     return data;
   }
@@ -142,7 +143,7 @@ async function printLabel(message) {
     return;
 
   const label = new Label(message.data.id),
-        data = label.retrieveData();
+        data = await label.retrieveData();
 
   const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'label'}),
         tpl = Handlebars.compile(tag),

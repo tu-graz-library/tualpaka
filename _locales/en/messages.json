@@ -9,6 +9,9 @@
     "message": "Name of the main library"
   },
   "subLibraries": {
-    "message": "Names of the sub libraries"
+    "message": "Names of the sub libraries, delimiter: ' : '"
+  },
+  "save": {
+    "message": "Save"
   }
 }

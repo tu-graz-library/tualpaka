@@ -8,7 +8,7 @@ function saveOptions(e) {
   const settings = {
     tualpaka: {
       mainLibrary: document.querySelector('#mainLibrary').value,
-      subLibraries: document.querySelector('#subLibraries').value.split(' ')
+      subLibraries: document.querySelector('#subLibraries').value.split(':').map(str => str.trim())
     }
   };
 
@@ -16,10 +16,11 @@ function saveOptions(e) {
 }
 
 async function restoreOptions() {
-  const localStorage = await browser.storage.local.get('tualpaka');
+  const localStorage = await browser.storage.local.get('tualpaka'),
+        tualpaka = localStorage.tualpaka || {};
 
-  document.querySelector("#mainLibrary").value = localStorage.mainLibrary || '';
-  document.querySelector("#subLibraries").value = (localStorage.subLibraries || []).join(' ');
+  document.querySelector("#mainLibrary").value = tualpaka.mainLibrary || '';
+  document.querySelector("#subLibraries").value = (tualpaka.subLibraries || []).join(' : ');
 }
 
 function i18n() {

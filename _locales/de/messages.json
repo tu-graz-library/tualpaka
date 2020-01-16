@@ -9,6 +9,9 @@
     "message": "Name der Hauptbibliothek"
   },
   "subLibraries": {
-    "message": "Name der Fachbibliotheken"
+    "message": "Bezeichnungn der Fachbibliotheken, mittels ' : ' getrennt"
+  },
+  "save": {
+    "message": "Speichern"
   }
 }
