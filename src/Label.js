@@ -73,7 +73,10 @@ class Label {
           tualpaka = storage && storage.tualpaka ? storage.tualpaka : {mainLibrary: "", subLibraries: []},
           libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
 
-    if (libraries.includes(data.main.library)) {
+    const libraryNameStartsWithInstituteNumber = /\d{4,4}.*/.test(data.main.library),
+          libraryNameIsInExcludList = libraries.includes(data.main.library);
+
+    if (libraryNameStartsWithInstituteNumber || libraryNameIsInExcludList) {
       delete data.main.library;
       delete data.main.location;
     }
