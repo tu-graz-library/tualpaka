@@ -35,6 +35,9 @@ class Label {
       if (items[0].trim() == "Exemplarsignatur")
         lines["itemSignature"] = items[1].trim().split(' ');
 
+      if (items[0].trim() == "Beschreibung")
+        lines["description"] = items[1].trim();
+
       if (items[0].trim() == "Permanenter Standort") {
         const matches = items[1].match(/\(.*?\)/);
         if (matches)
@@ -50,22 +53,30 @@ class Label {
   }
 
   beautifySignature(data) {
-    const beautify = (signature) => {
-      signature.forEach((sig, index) => {
-        if (sig[0] != "Z" && !isNaN(sig)) {
+    const beautify = (obj) => {
+      obj.signature.forEach((sig, index) => {
+        if (!isNaN(sig) || /\d.*\/\d.*/.test(sig)) {
           let pos = sig.indexOf("/");
           pos = pos === -1 ? sig.length : pos;
 
-          signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos)) + sig.substring(pos);
+          obj.signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
+
+          if (pos < sig.length) {
+            obj.signature[index] += '/';
+            obj.signature.splice(index+1, 0, sig.substring(pos+1));
+          }
+
+          if (obj.description && obj.signature[index].slice(-1) != '/')
+            obj.signature[index] += '/';
         }
       });
     };
 
     if (data.main)
-      beautify(data.main.signature);
+      beautify(data.main);
 
     if (data.sub)
-      beautify(data.sub.signature);
+      beautify(data.sub);
   }
 
   async removeElementsForInstituteLabel(data) {
@@ -90,7 +101,8 @@ class Label {
       data = {
         main: {
           library: obj["library"],
-          signature: obj["itemSignature"]
+          signature: obj["itemSignature"],
+          description: obj["description"]
         },
         sub: {
           library: obj["library"],
@@ -104,7 +116,8 @@ class Label {
         main: {
           library: obj["library"],
           signature: obj["signature"],
-          location: obj["location"]
+          location: obj["location"],
+          description: obj["description"]
         }
       };
 
