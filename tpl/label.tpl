@@ -51,44 +51,37 @@
          height: 24px;
          line-height: 24px;
      }
+
+     .description {
+         font-family: arial;
+         font-size: 18px;
+         height: 24px;
+         line-height: 24px;
+     }
+
+     .call-no-piece:empty {
+         display: none;
+     }
     </style>
   </head>
   <body onload="window.print()">
     <ul class="main">
-      <li class="library">
-        {{main.library}}  {{!e.g. Hauptbibliothek}}
-      </li>
-      <li class="location">
-        {{main.location}} {{!e.g. LBS, HB 22}}
-      </li>
-      <li class="call-no-piece">
-        {{main.signature.[0]}}
-      </li>
-      <li class="call-no-piece">
-        {{main.signature.[1]}}
-      </li>
-      <li class="call-no-piece">
-        {{main.signature.[2]}}
-      </li>
+      <li class="library">{{main.library}}</li>
+      <li class="location">{{main.location}}</li>
+      <li class="call-no-piece">{{main.signature.[0]}}</li>
+      <li class="call-no-piece">{{main.signature.[1]}}</li>
+      <li class="call-no-piece">{{main.signature.[2]}}</li>
+      <li class="description">{{main.description}}</li>
     </ul>
 
     {{#if beside}}
     <ul class="sub">
-      <li class="library">
-        {{sub.library}}  {{!e.g. Hauptbibliothek}}
-      </li>
-      <li class="location">
-        {{sub.location}} {{!e.g. LBS, HB 22}}
-      </li>
-      <li class="call-no-piece">
-        {{sub.signature.[0]}}
-      </li>
-      <li class="call-no-piece">
-        {{sub.signature.[1]}}
-      </li>
-      <li class="call-no-piece">
-        {{sub.signature.[2]}}
-      </li>
+      <li class="library">{{sub.library}}</li>
+      <li class="location">{{sub.location}} {{!e.g. LBS, HB 22}}</li>
+      <li class="call-no-piece">{{sub.signature.[0]}}</li>
+      <li class="call-no-piece">{{sub.signature.[1]}}</li>
+      <li class="call-no-piece">{{sub.signature.[2]}}</li>
+      <li class="description">{{sub.description}}</li>
     </ul>
     {{/if}}
   </body>
