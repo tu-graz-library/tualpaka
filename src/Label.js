@@ -52,11 +52,16 @@ class Label {
   beautifySignature(data) {
     const beautify = (signature) => {
       signature.forEach((sig, index) => {
-        if (sig[0] != "Z" && !isNaN(sig)) {
+        if (!isNaN(sig) || /\d.*\/\d.*/.test(sig)) {
           let pos = sig.indexOf("/");
           pos = pos === -1 ? sig.length : pos;
 
-          signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos)) + sig.substring(pos);
+          signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
+
+          if (pos < sig.length) {
+            signature[index] += '/';
+            signature.splice(index+1, 0, sig.substring(pos+1));
+          }
         }
       });
     };
