@@ -66,7 +66,7 @@ class Label {
             obj.signature.splice(index+1, 0, sig.substring(pos+1));
           }
 
-          if (obj.description && obj.signature[index].slice(-1) != '/')
+          if (obj.description && obj.signature[index].slice(-1) != '/' && obj.signature[0][0] != "Z")
             obj.signature[index] += '/';
         }
       });
