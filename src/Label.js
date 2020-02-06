@@ -12,13 +12,12 @@
  *
  **/
 
-class Book {
+class Record {
   constructor(data) {
     this.data = data;
 
     this.setIfTwoOrOneLabel();
     this.beautifySignature();
-    this.removeElementsForInstituteLabel();
   }
 
   set data(val) {
@@ -34,7 +33,7 @@ class Book {
   }
 
   beautifySignature() {
-    if (/I|II|III|IIII|IV/.test(this._data.main.signature[0])) {
+    if (/^Z?(I|II|III|IIII|IV)$/.test(this._data.main.signature[0])) {
       let obj = this._data.main,
           sig = obj.signature[1],
           pos = sig.indexOf("/");
@@ -46,10 +45,17 @@ class Book {
         obj.signature[1] += '/';
         obj.signature.splice(1+1, 0, sig.substring(pos+1));
       }
-
-      if (obj.description && obj.signature[1].slice(-1) != '/')
-        obj.signature[1] += '/';
     }
+  }
+
+}
+
+class Book extends Record {
+  constructor(data) {
+    super(data);
+
+    this.removeElementsForInstituteLabel();
+    this.addSlashToSignatureIfNecessary();
   }
 
   removeElementsForInstituteLabel() {
@@ -60,7 +66,13 @@ class Book {
       delete this._data.main.location;
     }
   }
+
+  addSlashToSignatureIfNecessary() {
+    if (this._data.main.description && this._data.main.signature[1].slice(-1) != '/')
+      this._data.main.signature[1] += '/';
+  }
 }
+
 
 class FHA extends Book {
   constructor(data) {
@@ -112,72 +124,22 @@ class HB21 extends Book {
   }
 }
 
-class BookSpecifis {
-  static setIfTwoOrOneLabel(data) {
-    data.beside = data.hasOwnProperty('sub');
+
+class Journal extends Record {
+  constructor(data) {
+    super(data);
+
+    this.removeLocationFromDisplay();
+    this.convertInstituteTitle();
   }
 
-  static beautifySignature(data) {
-    const beautify = (obj) => {
-      obj.signature.forEach((sig, index) => {
-        if (!isNaN(sig) || /\d.*\/.+/.test(sig)) {
-          let pos = sig.indexOf("/");
-          pos = pos === -1 ? sig.length : pos;
-
-          obj.signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
-
-          if (pos < sig.length) {
-            obj.signature[index] += '/';
-            obj.signature.splice(index+1, 0, sig.substring(pos+1));
-          }
-
-          if (obj.description && obj.signature[index].slice(-1) != '/')
-            obj.signature[index] += '/';
-        }
-      });
-    };
-
-    if (data.main)
-      beautify(data.main);
-
-    if (data.sub)
-      beautify(data.sub);
+  removeLocationFromDisplay() {
+    this._data.main.location.style = 'empty';
   }
 
-  static async removeElementsForInstituteLabel(data) {
-    const storage = await browser.storage.local.get('tualpaka'),
-          tualpaka = storage && storage.tualpaka ? storage.tualpaka : {mainLibrary: "", subLibraries: []},
-          libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
-
-    const libraryNameStartsWithInstituteNumber = /\d{4,4}.*/.test(data.main.library),
-          libraryNameIsInExcludList = libraries.includes(data.main.library);
-
-    if (libraryNameStartsWithInstituteNumber || libraryNameIsInExcludList) {
-      delete data.main.library;
-      delete data.main.location;
-    }
-  }
-
-  static async apply(data) {
-    this.setIfTwoOrOneLabel(data);
-    this.beautifySignature(data);
-    await this.removeElementsForInstituteLabel(data);
-  }
-}
-
-class JournalSpecifics {
-  static removeLocationFromDisplay(data) {
-    data.main.location.style = 'empty';
-  }
-
-  static convertInstituteTitle(data) {
-    if (!isNaN(parseInt(data.main.library)))
-      data.main.library = 'F' + parseInt(data.main.library);
-  }
-
-  static apply(data) {
-    this.removeLocationFromDisplay(data);
-    this.convertInstituteTitle(data);
+  convertInstituteTitle() {
+    if (!isNaN(parseInt(this._data.main.library)))
+      this._data.main.library = 'F' + parseInt(this._data.main.library);
   }
 }
 
@@ -259,15 +221,18 @@ class Label {
         }
       };
 
-    if (this.labelArts.has(location)) {
-      const k = new (this.labelArts.get(location))(data);
-      data = k.data;
-    } else if (data.main.signature[0][0] == "Z")
-      JournalSpecifics.apply(data);
-    else
-      await BookSpecifis.apply(data);
+    let record;
 
-    return data;
+    if (this.labelArts.has(location))
+      record = new (this.labelArts.get(location))(data);
+
+    else if (data.main.signature[0][0] == "Z")
+      record = new Journal(data);
+
+    else
+      record = new Book(data);
+
+    return record.data;
   }
 }
 
