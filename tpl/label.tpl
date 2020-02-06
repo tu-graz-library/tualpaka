@@ -62,26 +62,36 @@
      .call-no-piece:empty {
          display: none;
      }
+
+     .description:empty {
+         display: none;
+     }
+
+     .empty {
+         display: none;
+     }
     </style>
   </head>
   <body onload="window.print()">
     <ul class="main">
       <li class="library">{{main.library}}</li>
-      <li class="location">{{main.location}}</li>
+      <li class="location {{main.location.style}}">{{main.location.text}}</li>
       <li class="call-no-piece">{{main.signature.[0]}}</li>
       <li class="call-no-piece">{{main.signature.[1]}}</li>
       <li class="call-no-piece">{{main.signature.[2]}}</li>
-      <li class="description">{{main.description}}</li>
+      <li class="description">{{main.description.[0]}}</li>
+      <li class="description">{{main.description.[1]}}</li>
     </ul>
 
     {{#if beside}}
     <ul class="sub">
       <li class="library">{{sub.library}}</li>
-      <li class="location">{{sub.location}} {{!e.g. LBS, HB 22}}</li>
+      <li class="location {{sub.location.style}}">{{sub.location.text}}</li>
       <li class="call-no-piece">{{sub.signature.[0]}}</li>
       <li class="call-no-piece">{{sub.signature.[1]}}</li>
       <li class="call-no-piece">{{sub.signature.[2]}}</li>
-      <li class="description">{{sub.description}}</li>
+      <li class="description">{{sub.description.[0]}}</li>
+      <li class="description">{{sub.description.[1]}}</li>
     </ul>
     {{/if}}
   </body>

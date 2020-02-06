@@ -12,9 +12,188 @@
  *
  **/
 
+class Book {
+  constructor(data) {
+    this.data = data;
+
+    this.setIfTwoOrOneLabel();
+    this.beautifySignature();
+    this.removeElementsForInstituteLabel();
+  }
+
+  set data(val) {
+    this._data = val;
+  }
+
+  get data() {
+    return this._data;
+  }
+
+  setIfTwoOrOneLabel() {
+    this._data.beside = this._data.hasOwnProperty('sub');
+  }
+
+  beautifySignature() {
+    if (/I|II|III|IIII|IV/.test(this._data.main.signature[0])) {
+      let obj = this._data.main,
+          sig = obj.signature[1],
+          pos = sig.indexOf("/");
+      pos = pos === -1 ? sig.length : pos;
+
+      obj.signature[1] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
+
+      if (pos < sig.length) {
+        obj.signature[1] += '/';
+        obj.signature.splice(1+1, 0, sig.substring(pos+1));
+      }
+
+      if (obj.description && obj.signature[1].slice(-1) != '/')
+        obj.signature[1] += '/';
+    }
+  }
+
+  removeElementsForInstituteLabel() {
+    const libraryNameStartsWithInstituteNumber = /^\d{4,4}.*$/.test(this._data.main.library);
+
+    if (libraryNameStartsWithInstituteNumber) {
+      delete this._data.main.library;
+      delete this._data.main.location;
+    }
+  }
+}
+
+class FHA extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class TUGHS extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'TUG HS';
+  }
+}
+
+class ARCH extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class LBS extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class HB03 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 03';
+  }
+}
+
+class HB22 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 22';
+  }
+}
+
+class HB21 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 21';
+  }
+}
+
+class BookSpecifis {
+  static setIfTwoOrOneLabel(data) {
+    data.beside = data.hasOwnProperty('sub');
+  }
+
+  static beautifySignature(data) {
+    const beautify = (obj) => {
+      obj.signature.forEach((sig, index) => {
+        if (!isNaN(sig) || /\d.*\/.+/.test(sig)) {
+          let pos = sig.indexOf("/");
+          pos = pos === -1 ? sig.length : pos;
+
+          obj.signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
+
+          if (pos < sig.length) {
+            obj.signature[index] += '/';
+            obj.signature.splice(index+1, 0, sig.substring(pos+1));
+          }
+
+          if (obj.description && obj.signature[index].slice(-1) != '/')
+            obj.signature[index] += '/';
+        }
+      });
+    };
+
+    if (data.main)
+      beautify(data.main);
+
+    if (data.sub)
+      beautify(data.sub);
+  }
+
+  static async removeElementsForInstituteLabel(data) {
+    const storage = await browser.storage.local.get('tualpaka'),
+          tualpaka = storage && storage.tualpaka ? storage.tualpaka : {mainLibrary: "", subLibraries: []},
+          libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
+
+    const libraryNameStartsWithInstituteNumber = /\d{4,4}.*/.test(data.main.library),
+          libraryNameIsInExcludList = libraries.includes(data.main.library);
+
+    if (libraryNameStartsWithInstituteNumber || libraryNameIsInExcludList) {
+      delete data.main.library;
+      delete data.main.location;
+    }
+  }
+
+  static async apply(data) {
+    this.setIfTwoOrOneLabel(data);
+    this.beautifySignature(data);
+    await this.removeElementsForInstituteLabel(data);
+  }
+}
+
+class JournalSpecifics {
+  static removeLocationFromDisplay(data) {
+    data.main.location.style = 'empty';
+  }
+
+  static convertInstituteTitle(data) {
+    if (!isNaN(parseInt(data.main.library)))
+      data.main.library = 'F' + parseInt(data.main.library);
+  }
+
+  static apply(data) {
+    this.removeLocationFromDisplay(data);
+    this.convertInstituteTitle(data);
+  }
+}
+
 class Label {
   constructor(id) {
     this.id = id;
+
+    this.labelArts = new Map([
+      ['FHA', FHA],
+      ['TUGHS', TUGHS],
+      ['ARCH', ARCH],
+      ['LBS', LBS],
+      ['HB03', HB03],
+      ['HB22', HB22],
+      ['HB21', HB21]
+    ]);
   }
 
   get lines() {
@@ -35,8 +214,11 @@ class Label {
       if (items[0].trim() == "Exemplarsignatur")
         lines["itemSignature"] = items[1].trim().split(' ');
 
-      if (items[0].trim() == "Beschreibung")
-        lines["description"] = items[1].trim();
+      if (items[0].trim() == "Beschreibung") {
+        const parts = items[1].trim().split(',');
+
+        lines["description"] = isNaN(parseInt(parts.slice(-1))) ? parts : [parts.join(',')];
+      }
 
       if (items[0].trim() == "Permanenter Standort") {
         const matches = items[1].match(/\(.*?\)/);
@@ -48,54 +230,10 @@ class Label {
     return lines;
   }
 
-  setIfTwoOrOneLabel(data) {
-    data.beside = data.hasOwnProperty('sub');
-  }
-
-  beautifySignature(data) {
-    const beautify = (obj) => {
-      obj.signature.forEach((sig, index) => {
-        if (!isNaN(sig) || /\d.*\/\d.*/.test(sig)) {
-          let pos = sig.indexOf("/");
-          pos = pos === -1 ? sig.length : pos;
-
-          obj.signature[index] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
-
-          if (pos < sig.length) {
-            obj.signature[index] += '/';
-            obj.signature.splice(index+1, 0, sig.substring(pos+1));
-          }
-
-          if (obj.description && obj.signature[index].slice(-1) != '/' && obj.signature[0][0] != "Z")
-            obj.signature[index] += '/';
-        }
-      });
-    };
-
-    if (data.main)
-      beautify(data.main);
-
-    if (data.sub)
-      beautify(data.sub);
-  }
-
-  async removeElementsForInstituteLabel(data) {
-    const storage = await browser.storage.local.get('tualpaka'),
-          tualpaka = storage && storage.tualpaka ? storage.tualpaka : {mainLibrary: "", subLibraries: []},
-          libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
-
-    const libraryNameStartsWithInstituteNumber = /\d{4,4}.*/.test(data.main.library),
-          libraryNameIsInExcludList = libraries.includes(data.main.library);
-
-    if (libraryNameStartsWithInstituteNumber || libraryNameIsInExcludList) {
-      delete data.main.library;
-      delete data.main.location;
-    }
-  }
-
   async retrieveData() {
     let obj = this.lines,
-        data = {};
+        data = {},
+        location = obj["location"];
 
     if (obj.itemSignature && obj.signature)
       data = {
@@ -107,7 +245,7 @@ class Label {
         sub: {
           library: obj["library"],
           signature: obj["signature"],
-          location: obj["location"]
+          location: {text: obj["location"], style: ''}
         }
       };
 
@@ -116,19 +254,24 @@ class Label {
         main: {
           library: obj["library"],
           signature: obj["signature"],
-          location: obj["location"],
+          location: {text: obj["location"], style: ''},
           description: obj["description"]
         }
       };
 
-
-    this.setIfTwoOrOneLabel(data);
-    this.beautifySignature(data);
-    await this.removeElementsForInstituteLabel(data);
+    if (this.labelArts.has(location)) {
+      const k = new (this.labelArts.get(location))(data);
+      data = k.data;
+    } else if (data.main.signature[0][0] == "Z")
+      JournalSpecifics.apply(data);
+    else
+      await BookSpecifis.apply(data);
 
     return data;
   }
 }
+
+
 
 function addButtonPrintLabel() {
   document.querySelectorAll(".recordOuterContainer").forEach((element) => {
