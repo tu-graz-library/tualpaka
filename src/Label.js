@@ -12,50 +12,115 @@
  *
  **/
 
-class Label {
-  constructor(id) {
-    this.id = id;
+class Book {
+  constructor(data) {
+    this.data = data;
+
+    this.setIfTwoOrOneLabel();
+    this.beautifySignature();
+    this.removeElementsForInstituteLabel();
   }
 
-  get lines() {
-    const recordOuterContainer = document.querySelector(`#${this.id}`),
-          rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+  set data(val) {
+    this._data = val;
+  }
 
-    let lines = {};
+  get data() {
+    return this._data;
+  }
 
-    for (const rowElement of rowElements) {
-      const items = rowElement.innerText.split(":");
+  setIfTwoOrOneLabel() {
+    this._data.beside = this._data.hasOwnProperty('sub');
+  }
 
-      if (items[0].trim() == "Bibliothek")
-        lines["library"] = items[1].trim();
+  beautifySignature() {
+    if (/I|II|III|IIII|IV/.test(this._data.main.signature[0])) {
+      let obj = this._data.main,
+          sig = obj.signature[1],
+          pos = sig.indexOf("/");
+      pos = pos === -1 ? sig.length : pos;
 
-      if (items[0].trim() == "Signatur")
-        lines["signature"] = items[1].trim().split(' ');
+      obj.signature[1] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
 
-      if (items[0].trim() == "Exemplarsignatur")
-        lines["itemSignature"] = items[1].trim().split(' ');
-
-      if (items[0].trim() == "Beschreibung")
-        lines["description"] = items[1].trim();
-
-      if (items[0].trim() == "Permanenter Standort") {
-        const matches = items[1].match(/\(.*?\)/);
-        if (matches)
-          lines["location"] = matches[0].replace(/[\(\)]/g, '');
+      if (pos < sig.length) {
+        obj.signature[1] += '/';
+        obj.signature.splice(1+1, 0, sig.substring(pos+1));
       }
-    }
 
-    return lines;
+      if (obj.description && obj.signature[1].slice(-1) != '/')
+        obj.signature[1] += '/';
+    }
   }
 
-  setIfTwoOrOneLabel(data) {
+  removeElementsForInstituteLabel() {
+    const libraryNameStartsWithInstituteNumber = /^\d{4,4}.*$/.test(this._data.main.library);
+
+    if (libraryNameStartsWithInstituteNumber) {
+      delete this._data.main.library;
+      delete this._data.main.location;
+    }
+  }
+}
+
+class FHA extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class TUGHS extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'TUG HS';
+  }
+}
+
+class ARCH extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class LBS extends Book {
+  constructor(data) {
+    super(data);
+  }
+}
+
+class HB03 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 03';
+  }
+}
+
+class HB22 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 22';
+  }
+}
+
+class HB21 extends Book {
+  constructor(data) {
+    super(data);
+
+    this._data.sub.location.text = 'HB 21';
+  }
+}
+
+class BookSpecifis {
+  static setIfTwoOrOneLabel(data) {
     data.beside = data.hasOwnProperty('sub');
   }
 
-  beautifySignature(data) {
+  static beautifySignature(data) {
     const beautify = (obj) => {
       obj.signature.forEach((sig, index) => {
-        if (!isNaN(sig) || /\d.*\/\d.*/.test(sig)) {
+        if (!isNaN(sig) || /\d.*\/.+/.test(sig)) {
           let pos = sig.indexOf("/");
           pos = pos === -1 ? sig.length : pos;
 
@@ -79,7 +144,7 @@ class Label {
       beautify(data.sub);
   }
 
-  async removeElementsForInstituteLabel(data) {
+  static async removeElementsForInstituteLabel(data) {
     const storage = await browser.storage.local.get('tualpaka'),
           tualpaka = storage && storage.tualpaka ? storage.tualpaka : {mainLibrary: "", subLibraries: []},
           libraries = [tualpaka.mainLibrary, ...tualpaka.subLibraries];
@@ -93,9 +158,82 @@ class Label {
     }
   }
 
+  static async apply(data) {
+    this.setIfTwoOrOneLabel(data);
+    this.beautifySignature(data);
+    await this.removeElementsForInstituteLabel(data);
+  }
+}
+
+class JournalSpecifics {
+  static removeLocationFromDisplay(data) {
+    data.main.location.style = 'empty';
+  }
+
+  static convertInstituteTitle(data) {
+    if (!isNaN(parseInt(data.main.library)))
+      data.main.library = 'F' + parseInt(data.main.library);
+  }
+
+  static apply(data) {
+    this.removeLocationFromDisplay(data);
+    this.convertInstituteTitle(data);
+  }
+}
+
+class Label {
+  constructor(id) {
+    this.id = id;
+
+    this.labelArts = new Map([
+      ['FHA', FHA],
+      ['TUGHS', TUGHS],
+      ['ARCH', ARCH],
+      ['LBS', LBS],
+      ['HB03', HB03],
+      ['HB22', HB22],
+      ['HB21', HB21]
+    ]);
+  }
+
+  get lines() {
+    const recordOuterContainer = document.querySelector(`#${this.id}`),
+          rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+
+    let lines = {};
+
+    for (const rowElement of rowElements) {
+      const items = rowElement.innerText.split(":");
+
+      if (items[0].trim() == "Bibliothek")
+        lines["library"] = items[1].trim();
+
+      if (items[0].trim() == "Signatur")
+        lines["signature"] = items[1].trim().split(' ');
+
+      if (items[0].trim() == "Exemplarsignatur")
+        lines["itemSignature"] = items[1].trim().split(' ');
+
+      if (items[0].trim() == "Beschreibung") {
+        const parts = items[1].trim().split(',');
+
+        lines["description"] = isNaN(parseInt(parts.slice(-1))) ? parts : [parts.join(',')];
+      }
+
+      if (items[0].trim() == "Permanenter Standort") {
+        const matches = items[1].match(/\(.*?\)/);
+        if (matches)
+          lines["location"] = matches[0].replace(/[\(\)]/g, '');
+      }
+    }
+
+    return lines;
+  }
+
   async retrieveData() {
     let obj = this.lines,
-        data = {};
+        data = {},
+        location = obj["location"];
 
     if (obj.itemSignature && obj.signature)
       data = {
@@ -107,7 +245,7 @@ class Label {
         sub: {
           library: obj["library"],
           signature: obj["signature"],
-          location: obj["location"]
+          location: {text: obj["location"], style: ''}
         }
       };
 
@@ -116,19 +254,24 @@ class Label {
         main: {
           library: obj["library"],
           signature: obj["signature"],
-          location: obj["location"],
+          location: {text: obj["location"], style: ''},
           description: obj["description"]
         }
       };
 
-
-    this.setIfTwoOrOneLabel(data);
-    this.beautifySignature(data);
-    await this.removeElementsForInstituteLabel(data);
+    if (this.labelArts.has(location)) {
+      const k = new (this.labelArts.get(location))(data);
+      data = k.data;
+    } else if (data.main.signature[0][0] == "Z")
+      JournalSpecifics.apply(data);
+    else
+      await BookSpecifis.apply(data);
 
     return data;
   }
 }
+
+
 
 function addButtonPrintLabel() {
   document.querySelectorAll(".recordOuterContainer").forEach((element) => {
