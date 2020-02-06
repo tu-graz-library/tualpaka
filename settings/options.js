@@ -6,10 +6,7 @@ function saveOptions(e) {
   e.preventDefault();
 
   const settings = {
-    tualpaka: {
-      mainLibrary: document.querySelector('#mainLibrary').value,
-      subLibraries: document.querySelector('#subLibraries').value.split(':').map(str => str.trim())
-    }
+    tualpaka: {}
   };
 
   browser.storage.local.set(settings);
@@ -18,9 +15,6 @@ function saveOptions(e) {
 async function restoreOptions() {
   const localStorage = await browser.storage.local.get('tualpaka'),
         tualpaka = localStorage.tualpaka || {};
-
-  document.querySelector("#mainLibrary").value = tualpaka.mainLibrary || '';
-  document.querySelector("#subLibraries").value = (tualpaka.subLibraries || []).join(' : ');
 }
 
 function i18n() {
