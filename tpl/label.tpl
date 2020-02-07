@@ -59,6 +59,10 @@
          line-height: 24px;
      }
 
+     .location:empty {
+         display: none;
+     }
+
      .call-no-piece:empty {
          display: none;
      }

@@ -192,7 +192,7 @@ class Label {
     return lines;
   }
 
-  async retrieveData() {
+  retrieveData() {
     let obj = this.lines,
         data = {},
         location = obj["location"];
@@ -267,7 +267,7 @@ async function printLabel(message) {
     return;
 
   const label = new Label(message.data.id),
-        data = await label.retrieveData();
+        data = label.retrieveData();
 
   const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'label'}),
         tpl = Handlebars.compile(tag),
