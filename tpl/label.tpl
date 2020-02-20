@@ -83,8 +83,8 @@
       <li class="call-no-piece">{{main.signature.[0]}}</li>
       <li class="call-no-piece">{{main.signature.[1]}}</li>
       <li class="call-no-piece">{{main.signature.[2]}}</li>
-      <li class="description">{{main.description.[0]}}</li>
-      <li class="description">{{main.description.[1]}}</li>
+      <li class="description">{{{main.description.[0]}}}</li>
+      <li class="description">{{{main.description.[1]}}}</li>
     </ul>
 
     {{#if beside}}
@@ -94,8 +94,8 @@
       <li class="call-no-piece">{{sub.signature.[0]}}</li>
       <li class="call-no-piece">{{sub.signature.[1]}}</li>
       <li class="call-no-piece">{{sub.signature.[2]}}</li>
-      <li class="description">{{sub.description.[0]}}</li>
-      <li class="description">{{sub.description.[1]}}</li>
+      <li class="description">{{{sub.description.[0]}}}</li>
+      <li class="description">{{{sub.description.[1]}}}</li>
     </ul>
     {{/if}}
   </body>

@@ -138,8 +138,10 @@ class Journal extends Record {
   }
 
   convertInstituteTitle() {
-    if (!isNaN(parseInt(this._data.main.library)))
-      this._data.main.library = 'F' + parseInt(this._data.main.library);
+    const number = /\d{4,4}/.exec(this._data.main.library);
+
+    if (number !== null && !isNaN(parseInt(number[0])))
+      this._data.main.library = 'F' + number;
   }
 }
 
