@@ -124,6 +124,18 @@ class HB21 extends Book {
   }
 }
 
+class Dissertation extends Book {
+  constructor(data) {
+    super(data);
+  }
+
+  beautifySignature() {
+    this.data.main.signature.forEach((element, index, signature) => {
+      signature[index] = new Intl.NumberFormat('de-DE').format(element);
+    });
+  }
+}
+
 
 class Journal extends Record {
   constructor(data) {
@@ -227,6 +239,9 @@ class Label {
 
     if (this.labelArts.has(location))
       record = new (this.labelArts.get(location))(data);
+
+    else if (data.main.signature[0] == "25000")
+      record = new Dissertation(data);
 
     else if (data.main.signature[0][0] == "Z")
       record = new Journal(data);
