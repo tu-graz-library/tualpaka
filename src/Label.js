@@ -16,6 +16,9 @@ class Record {
   constructor(data) {
     this.data = data;
 
+    if (this.doSwap())
+      this.swapSubMain();
+
     this.setIfTwoOrOneLabel();
     this.beautifySignature();
   }
@@ -48,6 +51,16 @@ class Record {
     }
   }
 
+  doSwap() {
+    return false;
+  }
+
+  swapSubMain() {
+    if (!this._data.hasOwnProperty('sub'))
+      return;
+
+    [this._data.main, this._data.sub] = [this._data.sub, this._data.main];
+  }
 }
 
 class Book extends Record {
@@ -59,11 +72,16 @@ class Book extends Record {
   }
 
   removeElementsForInstituteLabel() {
-    const libraryNameStartsWithInstituteNumber = /\d{4,5}/.test(this._data.main.library);
+    const libraryNameContainInstituteNumber = /\d{4,5}/.test(this._data.main.library);
 
-    if (libraryNameStartsWithInstituteNumber) {
+    if (libraryNameContainInstituteNumber) {
       delete this._data.main.library;
       delete this._data.main.location;
+    }
+
+    if (libraryNameContainInstituteNumber && this._data.hasOwnProperty('sub')) {
+      delete this._data.sub.library;
+      delete this._data.sub.location;
     }
   }
 
@@ -124,6 +142,31 @@ class HB21 extends Book {
   }
 }
 
+class Dissertation extends Book {
+  constructor(data) {
+    super(data);
+  }
+
+  beautifySignature() {
+    this.data.main.signature.forEach((element, index, signature) => {
+      signature[index] = new Intl.NumberFormat('de-DE').format(element);
+    });
+  }
+}
+
+class FacultyLibrary extends Book {
+  constructor(data) {
+    super(data);
+
+    delete this._data.beside;
+    delete this._data.sub;
+  }
+
+  doSwap() {
+    return true;
+  }
+}
+
 
 class Journal extends Record {
   constructor(data) {
@@ -150,6 +193,7 @@ class Label {
     this.id = id;
 
     this.labelArts = new Map([
+      ['Institutsbibliothek', FacultyLibrary],
       ['FHA', FHA],
       ['TUGHS', TUGHS],
       ['ARCH', ARCH],
@@ -188,6 +232,9 @@ class Label {
         const matches = items[1].match(/\(.*?\)/);
         if (matches)
           lines["location"] = matches[0].replace(/[\(\)]/g, '');
+
+        if (items[1].trim() == "Institutsbibliothek")
+          lines["location"] = items[1].trim();
       }
     }
 
@@ -225,11 +272,14 @@ class Label {
 
     let record;
 
-    if (this.labelArts.has(location))
-      record = new (this.labelArts.get(location))(data);
+    if (data.main.signature[0] == "25000")
+      record = new Dissertation(data);
 
     else if (data.main.signature[0][0] == "Z")
       record = new Journal(data);
+
+    else if (this.labelArts.has(location))
+      record = new (this.labelArts.get(location))(data);
 
     else
       record = new Book(data);
