@@ -59,11 +59,16 @@ class Book extends Record {
   }
 
   removeElementsForInstituteLabel() {
-    const libraryNameStartsWithInstituteNumber = /\d{4,5}/.test(this._data.main.library);
+    const libraryNameContainInstituteNumber = /\d{4,5}/.test(this._data.main.library);
 
-    if (libraryNameStartsWithInstituteNumber) {
+    if (libraryNameContainInstituteNumber) {
       delete this._data.main.library;
       delete this._data.main.location;
+    }
+
+    if (libraryNameContainInstituteNumber && this._data.hasOwnProperty('sub')) {
+      delete this._data.sub.library;
+      delete this._data.sub.location;
     }
   }
 
