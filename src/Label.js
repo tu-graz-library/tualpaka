@@ -16,6 +16,9 @@ class Record {
   constructor(data) {
     this.data = data;
 
+    if (this.doSwap())
+      this.swapSubMain();
+
     this.setIfTwoOrOneLabel();
     this.beautifySignature();
   }
@@ -48,6 +51,16 @@ class Record {
     }
   }
 
+  doSwap() {
+    return false;
+  }
+
+  swapSubMain() {
+    if (!this._data.hasOwnProperty('sub'))
+      return;
+
+    [this._data.main, this._data.sub] = [this._data.sub, this._data.main];
+  }
 }
 
 class Book extends Record {
@@ -141,6 +154,19 @@ class Dissertation extends Book {
   }
 }
 
+class FacultyLibrary extends Book {
+  constructor(data) {
+    super(data);
+
+    delete this._data.beside;
+    delete this._data.sub;
+  }
+
+  doSwap() {
+    return true;
+  }
+}
+
 
 class Journal extends Record {
   constructor(data) {
@@ -167,6 +193,7 @@ class Label {
     this.id = id;
 
     this.labelArts = new Map([
+      ['Institutsbibliothek', FacultyLibrary],
       ['FHA', FHA],
       ['TUGHS', TUGHS],
       ['ARCH', ARCH],
@@ -205,6 +232,9 @@ class Label {
         const matches = items[1].match(/\(.*?\)/);
         if (matches)
           lines["location"] = matches[0].replace(/[\(\)]/g, '');
+
+        if (items[1].trim() == "Institutsbibliothek")
+          lines["location"] = items[1].trim();
       }
     }
 
