@@ -242,14 +242,14 @@ class Label {
 
     let record;
 
-    if (this.labelArts.has(location))
-      record = new (this.labelArts.get(location))(data);
-
-    else if (data.main.signature[0] == "25000")
+    if (data.main.signature[0] == "25000")
       record = new Dissertation(data);
 
     else if (data.main.signature[0][0] == "Z")
       record = new Journal(data);
+
+    else if (this.labelArts.has(location))
+      record = new (this.labelArts.get(location))(data);
 
     else
       record = new Book(data);
