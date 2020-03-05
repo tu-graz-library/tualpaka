@@ -158,8 +158,11 @@ class Dissertation extends Book {
   }
 
   beautifySignature() {
-    this.data.main.signature.forEach((element, index, signature) => {
-      signature[index] = new Intl.NumberFormat('de-DE').format(element);
+    this._data.main.signature.forEach((element, index, signature) => {
+      const arr = this.addThousandDelimiter(element);
+      signature[index] = arr[0];
+      if (arr.length == 2)
+        signature.splice(index+1, 0, ...arr.slice(1));
     });
   }
 }
