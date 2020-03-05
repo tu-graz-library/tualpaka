@@ -36,19 +36,29 @@ class Record {
   }
 
   beautifySignature() {
-    if (/^Z?(I|II|III|IIII|IV)$/.test(this._data.main.signature[0])) {
-      let obj = this._data.main,
-          sig = obj.signature[1],
-          pos = sig.indexOf("/");
-      pos = pos === -1 ? sig.length : pos;
+    if (!/^Z?(I|II|III|IIII|IV)$/.test(this._data.main.signature[0]))
+      return;
 
-      obj.signature[1] = new Intl.NumberFormat('de-DE').format(sig.substring(0, pos));
+    const arr = this.addThousandDelimiter(this._data.main.signature[1]);
 
-      if (pos < sig.length) {
-        obj.signature[1] += '/';
-        obj.signature.splice(1+1, 0, sig.substring(pos+1));
-      }
+    this._data.main.signature[1] = arr[0];
+    if (arr.length == 2)
+      this._data.main.signature.splice(2, 0, ...arr.slice(1));
+  }
+
+  addThousandDelimiter(signature) {
+    let pos = signature.indexOf("/");
+    pos = pos === -1 ? signature.length : pos;
+
+    let signatureWithThousandDelimiter = new Intl.NumberFormat('de-DE').format(signature.substring(0, pos)),
+        returnValue = [signatureWithThousandDelimiter];
+
+    if (pos < signature.length) {
+      returnValue[0] += '/';
+      returnValue[1] = signature.substring(pos+1);
     }
+
+    return returnValue;
   }
 
   doSwap() {
