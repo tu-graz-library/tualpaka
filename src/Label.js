@@ -202,8 +202,8 @@ class Journal extends Record {
 }
 
 class Label {
-  constructor(id) {
-    this.id = id;
+  constructor(metadata) {
+    this.metadata = metadata;
 
     this.labelArts = new Map([
       ['Institutsbibliothek', FacultyLibrary],
@@ -217,73 +217,40 @@ class Label {
     ]);
   }
 
-  get lines() {
-    const recordOuterContainer = document.querySelector(`#${this.id}`),
-          rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+  get rawData() {
+    let data = {};
 
-    let lines = {};
+    if (this.metadata.itemSignature && this.metadata.signature)
+      data = {
+        main: {
+          library: this.metadata["library"],
+          signature: this.metadata["itemSignature"],
+          description: this.metadata["description"]
+        },
+        sub: {
+          library: this.metadata["library"],
+          signature: this.metadata["signature"],
+          location: {text: this.metadata["location"], style: ''}
+        }
+      };
 
-    for (const rowElement of rowElements) {
-      const items = rowElement.innerText.split(":");
+    else if (this.metadata.signature)
+      data = {
+        main: {
+          library: this.metadata["library"],
+          signature: this.metadata["signature"],
+          location: {text: this.metadata["location"], style: ''},
+          description: this.metadata["description"]
+        }
+      };
 
-      if (items[0].trim() == "Bibliothek")
-        lines["library"] = items[1].trim();
-
-      if (items[0].trim() == "Signatur")
-        lines["signature"] = items[1].trim().split(' ');
-
-      if (items[0].trim() == "Exemplarsignatur")
-        lines["itemSignature"] = items[1].trim().split(' ');
-
-      if (items[0].trim() == "Beschreibung") {
-        const parts = items[1].trim().split(',');
-
-        lines["description"] = isNaN(parseInt(parts.slice(-1))) ? parts : [parts.join(',')];
-      }
-
-      if (items[0].trim() == "Permanenter Standort") {
-        const matches = items[1].match(/\(.*?\)/);
-        if (matches)
-          lines["location"] = matches[0].replace(/[\(\)]/g, '');
-
-        if (items[1].trim() == "Institutsbibliothek")
-          lines["location"] = items[1].trim();
-      }
-    }
-
-    return lines;
+    return data;
   }
 
   retrieveData() {
-    let obj = this.lines,
-        data = {},
-        location = obj["location"];
-
-    if (obj.itemSignature && obj.signature)
-      data = {
-        main: {
-          library: obj["library"],
-          signature: obj["itemSignature"],
-          description: obj["description"]
-        },
-        sub: {
-          library: obj["library"],
-          signature: obj["signature"],
-          location: {text: obj["location"], style: ''}
-        }
-      };
-
-    else if (obj.signature)
-      data = {
-        main: {
-          library: obj["library"],
-          signature: obj["signature"],
-          location: {text: obj["location"], style: ''},
-          description: obj["description"]
-        }
-      };
-
-    let record;
+    let location = this.metadata["location"],
+        data = this.rawData,
+        record;
 
     if (data.main.signature[0] == "25000")
       record = new Dissertation(data);
@@ -301,6 +268,48 @@ class Label {
   }
 }
 
+class CollectMetadataFromHtml {
+  constructor(id) {
+    this.id = id;
+  }
+
+  get metadata() {
+    const recordOuterContainer = document.querySelector(`#${this.id}`),
+          rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+
+    let metadata = {};
+
+    for (const rowElement of rowElements) {
+      const items = rowElement.innerText.split(":");
+
+      if (items[0].trim() == "Bibliothek")
+        metadata["library"] = items[1].trim();
+
+      if (items[0].trim() == "Signatur")
+        metadata["signature"] = items[1].trim().split(' ');
+
+      if (items[0].trim() == "Exemplarsignatur")
+        metadata["itemSignature"] = items[1].trim().split(' ');
+
+      if (items[0].trim() == "Beschreibung") {
+        const parts = items[1].trim().split(',');
+
+        metadata["description"] = isNaN(parseInt(parts.slice(-1))) ? parts : [parts.join(',')];
+      }
+
+      if (items[0].trim() == "Permanenter Standort") {
+        const matches = items[1].match(/\(.*?\)/);
+        if (matches)
+          metadata["location"] = matches[0].replace(/[\(\)]/g, '');
+
+        if (items[1].trim() == "Institutsbibliothek")
+          metadata["location"] = items[1].trim();
+      }
+    }
+
+    return metadata;
+  }
+}
 
 
 function addButtonPrintLabel() {
@@ -331,7 +340,8 @@ async function printLabel(message) {
   if (!message.data || message.data.art != "tug-label")
     return;
 
-  const label = new Label(message.data.id),
+  const metadata = new CollectMetadataFromHtml(message.data.id),
+        label = new Label(metadata.metadata),
         data = label.retrieveData();
 
   const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'label'}),
