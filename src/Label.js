@@ -36,7 +36,7 @@ class Record {
   }
 
   beautifySignature() {
-    if (!/^Z?(I|II|III|IIII|IV)$/.test(this._data.main.signature[0]))
+    if (!/^Z?(I|II(\+NB)?|III|IIII|IV|II)$/.test(this._data.main.signature[0]))
       return;
 
     const arr = this.addThousandDelimiter(this._data.main.signature[1]);
