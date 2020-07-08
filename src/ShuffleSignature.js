@@ -71,7 +71,7 @@ function shuffleSignature(message) {
 function addButtonShuffleSignature() {
   const shuffleButton = `
      <div class="pull-right marLeft10">
-       <button id="PAGE_BUTTONS_cbuttonshuffle" class="" onclick="event.preventDefault(); window.postMessage({art: 'tug-shuffle'}, '*'); return false;" title="Exemplarsignatur vom Holding in Exemplarsignatur schreiben">ExpSig. Shuffle</button>
+       <button id="PAGE_BUTTONS_cbuttonshuffle" class="" onclick="event.preventDefault(); window.postMessage({art: 'tug-shuffle'}, '*'); return false;" title="Exemplarsignatur vom Holding in Exemplarsignatur schreiben">852h einfügen</button>
      </div>
   `;
 
