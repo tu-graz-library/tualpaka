@@ -18,8 +18,24 @@ class ShuffleSignature {
       if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignatur")
         row.querySelector("input").value = signature.signature;
 
-      if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignaturtyp")
-        row.querySelector("input").value = "Anderes Schema";
+      if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignaturtyp") {
+
+        try {
+          // not a nice solution but the only one that worked.
+          // set the value directly was possible but does not worked. the value was there and visible
+          // but it was not been saved to the database and after a reload the value disappeared
+          row.querySelector(".displayTableCell").click();
+          setTimeout(() => {
+            row.querySelector(".input-group-btn > button").click();
+
+            setTimeout(() => {
+              row.querySelector("li[title='Anderes Schema']").click();
+            }, 200);
+          }, 200);
+        } catch (e) {
+          console.log("exception: ", e);
+        }
+      }
     }
   }
 }
