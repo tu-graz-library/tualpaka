@@ -19,6 +19,7 @@
         "src/UserManagement.js",
         "src/Label.js",
         "src/Receiving.js",
+        "src/ShuffleSignature.js",
         "tualpaka.js"
       ],
       "all_frames": true
