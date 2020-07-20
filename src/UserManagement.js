@@ -6,11 +6,19 @@ class UserManagement {
   retrieveData() {
     let data = {};
 
-    data["id"] = document.querySelector("#SPAN_SELENIUM_ID_identifiersList_ROW_0_COL_userIdentifiervalue").innerText.toUpperCase();
+    data["id"] = this.extractBarcode();
     data["name"] = document.querySelector("#pageBeanname").innerText;
     data["currentDate"] = currentDate();
 
     return data;
+  }
+
+  extractBarcode() {
+    const labels = document.querySelectorAll("#TABLE_DATA_identifiersList .labelField");
+
+    return [...labels]
+      .map(span => span.innerText.toUpperCase())
+      .filter(label => label[0] == "$")[0];
   }
 }
 
