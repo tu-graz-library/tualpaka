@@ -57,6 +57,12 @@ class ExtractSignature {
   }
 }
 
+function isValidPlaceForShuffle() {
+  const pageTitle = document.querySelector(".pageTitle").innerText;
+
+  return pageTitle == "Editor für physische Exemplare";
+}
+
 function shuffleSignature(message) {
   if (!message.data || message.data.art != "tug-shuffle")
     return;
@@ -69,6 +75,9 @@ function shuffleSignature(message) {
 
 // REFACTOR: Label.js addButtonPrintLabel create a abstraction
 function addButtonShuffleSignature() {
+  if (!isValidPlaceForShuffle())
+    return;
+
   const shuffleButton = `
      <div class="pull-right marLeft10">
        <button id="PAGE_BUTTONS_cbuttonshuffle" class="" onclick="event.preventDefault(); window.postMessage({art: 'tug-shuffle'}, '*'); return false;" title="Exemplarsignatur vom Holding in Exemplarsignatur schreiben">852h einfügen</button>
