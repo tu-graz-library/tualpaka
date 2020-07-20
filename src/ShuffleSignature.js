@@ -91,10 +91,10 @@ function addButtonShuffleSignature() {
   const domParser = new DOMParser(),
         html = domParser.parseFromString(shuffleButton, "text/html");
 
-  const cancelButton = document.getElementById("PAGE_BUTTONS_cbuttoncancel");
+  const firstElement = document.querySelector(".btnWrapper .pull-right");
 
-  if (cancelButton)
-    cancelButton.parentNode.insertBefore(html.body.firstChild, cancelButton);
+  if (firstElement)
+    firstElement.parentNode.insertBefore(html.body.firstChild, firstElement.nextSibling);
 }
 
 window.addEventListener("message", shuffleSignature);
