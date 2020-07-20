@@ -14,14 +14,3 @@ function handleMessage(request, sender, sendResponse) {
 }
 
 browser.runtime.onMessage.addListener(handleMessage);
-
-
-browser.contextMenus.create({
-  id: "print-user",
-  title: "print the user"
-});
-
-browser.contextMenus.onClicked.addListener(function(info, tab) {
-  if (info.menuItemId == "print-user")
-    browser.tabs.executeScript({code: "printUser()"});
-});
