@@ -13,5 +13,4 @@ function init() {
   observer.observe(target, config);
 }
 
-
-init();
+window.setTimeout(init, 2000);
