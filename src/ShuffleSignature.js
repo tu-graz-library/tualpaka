@@ -45,7 +45,7 @@ class ExtractSignature {
     const rows = document.querySelectorAll(".row");
 
     for (const row of rows) {
-      if (row.querySelector(".displayTableCell")?.textContent == "Lokalsatz") {
+      if (row.querySelector(".displayTableCell")?.textContent == "Bestand") {
         const text = row.querySelector("a").textContent;
         this.signature_ = text.split(";").pop().trim();
       }
