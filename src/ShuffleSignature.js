@@ -58,9 +58,10 @@ class ExtractSignature {
 }
 
 function isValidPlaceForShuffle() {
-  const pageTitle = document.querySelector(".pageTitle").innerText;
+  const pageTitle = document.querySelector(".pageTitle").innerText,
+        detailsWizardIdentifier = document.querySelector("#cresource_editorgeneral_span")?.getAttribute("aria-selected");
 
-  return pageTitle == "Editor für physische Exemplare";
+  return pageTitle == "Editor für physische Exemplare" && detailsWizardIdentifier == "true";
 }
 
 function shuffleSignature(message) {
