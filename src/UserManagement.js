@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020 Christoph Ladurner, Technische Universität Graz, Bibliothek
+ * Copyright (C) 2020-2021 Christoph Ladurner, Technische Universität Graz, Bibliothek
  **/
 
 class UserManagement {
@@ -40,7 +40,7 @@ function printHtml(html) {
 
 function isValidPlaceForPrint() {
   const pageTitle = document.querySelector(".pageTitle").innerText,
-        detailsWizardIdentifier = document.querySelector("#cuseruser_detailswizardidentifier_span")?.getAttribute("aria-selected");
+        detailsWizardIdentifier = document.querySelector("#cuseruser_detailswizardidentifier_span a")?.getAttribute("aria-selected");
 
   return pageTitle == "Benutzerdetails" && detailsWizardIdentifier == "true";
 }
