@@ -59,7 +59,7 @@ class ExtractSignature {
 
 function isValidPlaceForShuffle() {
   const pageTitle = document.querySelector(".pageTitle").innerText,
-        detailsWizardIdentifier = document.querySelector("#cresource_editorgeneral_span")?.getAttribute("aria-selected");
+        detailsWizardIdentifier = document.querySelector("#cresource_editorgeneral_span a")?.getAttribute("aria-selected");
 
   return pageTitle == "Editor für physische Exemplare" && detailsWizardIdentifier == "true";
 }
