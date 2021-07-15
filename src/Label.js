@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020 Christoph Ladurner, Technische Universität Graz, Bibliothek
+ * Copyright (C) 2020-2021 Christoph Ladurner, Technische Universität Graz, Bibliothek
  *
  * To print the labels in Alma the user has search with "Physische
  * Exemplare". Then every physical items occur in the result list. The
@@ -36,7 +36,7 @@ class Record {
   }
 
   beautifySignature() {
-    if (!/^Z?(I|II(\+NB)?|III|IIII|IV|II)$/.test(this._data.main.signature[0]))
+    if (!/^Z?(I|II|III|IIII|IV)(\+NB)?$/.test(this._data.main.signature[0]))
       return;
 
     const arr = this.addThousandDelimiter(this._data.main.signature[1]);
@@ -79,6 +79,7 @@ class Book extends Record {
 
     this.removeElementsForInstituteLabel();
     this.addSlashToSignatureIfNecessary();
+    this.mergeToLongSignature();
   }
 
   removeElementsForInstituteLabel() {
@@ -98,6 +99,11 @@ class Book extends Record {
   addSlashToSignatureIfNecessary() {
     if (this._data.main.description && this._data.main.signature[1].slice(-1) != '/')
       this._data.main.signature[1] += '/';
+  }
+
+  mergeToLongSignature() {
+    if (this._data.main.signature.length > 3)
+      this._data.main.signature[2] = this._data.main.signature.splice(2).join(" ");
   }
 }
 
