@@ -1,16 +1,24 @@
 /**
- * Copyright (C) 2020 Christoph Ladurner, Technische Universität Graz, Bibliothek
+ * Copyright (C) 2020-2021 Christoph Ladurner, Technische Universität Graz, Bibliothek
  **/
 
 class UserManagement {
   retrieveData() {
     let data = {};
 
-    data["id"] = document.querySelector("#SPAN_SELENIUM_ID_identifiersList_ROW_0_COL_userIdentifiervalue").innerText.toUpperCase();
+    data["id"] = this.extractBarcode();
     data["name"] = document.querySelector("#pageBeanname").innerText;
     data["currentDate"] = currentDate();
 
     return data;
+  }
+
+  extractBarcode() {
+    const labels = document.querySelectorAll("#TABLE_DATA_identifiersList .labelField");
+
+    return [...labels]
+      .map(span => span.innerText.toUpperCase())
+      .filter(label => label[0] == "$")[0];
   }
 }
 
@@ -30,21 +38,51 @@ function printHtml(html) {
   document.body.appendChild(iframe);
 }
 
-async function printUser(e) {
+function isValidPlaceForPrint() {
   const pageTitle = document.querySelector(".pageTitle").innerText,
-        detailsWizardIdentifier = document.querySelector("#cuseruser_detailswizardidentifier_span").getAttribute("aria-selected");
+        detailsWizardIdentifier = document.querySelector("#cuseruser_detailswizardidentifier_span a")?.getAttribute("aria-selected");
 
-  if (pageTitle == "Benutzerdetails" && detailsWizardIdentifier == "true") {
-    const userManagement = new UserManagement(),
-          data = userManagement.retrieveData();
-
-    const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'user'});
-
-    const tpl = Handlebars.compile(tag),
-          html = tpl(data);
-
-    printHtml(html);
-  }
-  else
-    alert("Um Benutzerkarten auszudrucken müssen Sie auf die Seite Benutzerdetails gehen und auf Kennungen klicken.");
+  return pageTitle == "Benutzerdetails" && detailsWizardIdentifier == "true";
 }
+
+async function printUser(message) {
+  if (!message.data || message.data.art != "tug-printUser") {
+    return;
+  }
+
+  const userManagement = new UserManagement(),
+        data = userManagement.retrieveData();
+
+  const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'user'});
+
+  const tpl = Handlebars.compile(tag),
+        html = tpl(data);
+
+  printHtml(html);
+}
+
+function addButtonPrintUser() {
+  if (!isValidPlaceForPrint())
+    return;
+
+  const button = `
+    <div class="pull-right marLeft10">
+      <button id="PAGE_BUTTONS_cbuttonprintuser"
+              class="btn btn-secondary jsBlockScreen jsToolTipDelayed jsHotkeyHint"
+              onclick="event.preventDefault(); window.postMessage({art: 'tug-printUser'}, '*'); return false;" title="Print the User">
+        Benutzer Drucken
+      </button>
+    </div>
+  `;
+
+  const domParser = new DOMParser(),
+        html = domParser.parseFromString(button, "text/html");
+
+  const firstElement = document.querySelector(".btnWrapper .pull-right");
+
+  if (firstElement)
+    firstElement.parentNode.insertBefore(html.body.firstChild, firstElement.nextSibling);
+}
+
+window.addEventListener("message", printUser);
+window.loadingBlockerEvents.push(addButtonPrintUser);

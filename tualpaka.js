@@ -6,12 +6,11 @@
 function init() {
   const mutationCallback = () => { window.loadingBlockerEvents.forEach(fn => fn()); };
 
-  const target = document.querySelector("#loadingBlockerStatusIdentifier"),
+  const target = document.querySelector("#loadingBlocker"),
         config = {attributes: true},
         observer = new MutationObserver(mutationCallback);
 
   observer.observe(target, config);
 }
 
-
-init();
+window.setTimeout(init, 6000);

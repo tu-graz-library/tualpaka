@@ -2,7 +2,7 @@
   "description": "__MSG_extensionDesc__",
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
-  "version": "1.1.13",
+  "version": "1.1.21",
   "default_locale": "de",
   "homepage_url": "https://ub.tugraz.at",
   "icons": {
@@ -19,6 +19,7 @@
         "src/UserManagement.js",
         "src/Label.js",
         "src/Receiving.js",
+        "src/ShuffleSignature.js",
         "tualpaka.js"
       ],
       "all_frames": true
