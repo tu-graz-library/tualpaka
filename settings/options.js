@@ -6,30 +6,28 @@ function saveOptions(e) {
   e.preventDefault();
 
   const settings = {
-    tualpaka: {}
+    tualpaka: {},
   };
 
   browser.storage.local.set(settings);
 }
 
 async function restoreOptions() {
-  const localStorage = await browser.storage.local.get('tualpaka'),
-        tualpaka = localStorage.tualpaka || {};
+  const localStorage = await browser.storage.local.get("tualpaka");
+  const tualpaka = localStorage.tualpaka || {};
 }
 
 function i18n() {
-  document.querySelectorAll('[data-i18n]').forEach((element) => {
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.innerHTML = browser.i18n.getMessage(element.dataset.i18n);
   });
 }
 
 function init() {
-  document.querySelector('form').addEventListener('submit', saveOptions);
+  document.querySelector("form").addEventListener("submit", saveOptions);
 
   restoreOptions();
   i18n();
 }
 
-document.addEventListener('DOMContentLoaded', init);
-
-
+document.addEventListener("DOMContentLoaded", init);
