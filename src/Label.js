@@ -331,7 +331,7 @@ function addButtonPrintLabel() {
   document.querySelectorAll(".recordOuterContainer").forEach((element) => {
     const li = `
                 <li class="rowAction internalRowAction">
-                  <a class="submitUrl" href="#" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
+                  <a class="submitUrl dropdown-item" href="#" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
                     Print Label
                   </a>
                 </li>
