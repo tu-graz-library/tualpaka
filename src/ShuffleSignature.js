@@ -15,11 +15,13 @@ class ShuffleSignature {
     const rows = document.querySelectorAll(".row");
 
     for (const row of rows) {
-      if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignatur")
+      if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignatur") {
         row.querySelector("input").value = signature.signature;
+      }
 
-      if (row.querySelector(".displayTableCell")?.textContent == "Exemplarsignaturtyp") {
-
+      if (
+        row.querySelector(".displayTableCell")?.textContent == "Exemplarsignaturtyp"
+      ) {
         try {
           // not a nice solution but the only one that worked.
           // set the value directly was possible but does not worked. the value was there and visible
@@ -58,15 +60,20 @@ class ExtractSignature {
 }
 
 function isValidPlaceForShuffle() {
-  const pageTitle = document.querySelector(".pageTitle").innerText,
-        detailsWizardIdentifier = document.querySelector("#cresource_editorgeneral_span a")?.getAttribute("aria-selected");
+  const pageTitle = document.querySelector(".pageTitle").innerText;
+  const detailsWizardIdentifier = document
+    .querySelector("#cresource_editorgeneral_span a")
+    ?.getAttribute("aria-selected");
 
-  return pageTitle == "Editor für physische Exemplare" && detailsWizardIdentifier == "true";
+  return (
+    pageTitle == "Editor für physische Exemplare" && detailsWizardIdentifier == "true"
+  );
 }
 
 function shuffleSignature(message) {
-  if (!message.data || message.data.art != "tug-shuffle")
+  if (!message.data || message.data.art != "tug-shuffle") {
     return;
+  }
 
   const shuffle = new ShuffleSignature();
   const signature = new ExtractSignature();
@@ -76,8 +83,9 @@ function shuffleSignature(message) {
 
 // REFACTOR: Label.js addButtonPrintLabel create a abstraction
 function addButtonShuffleSignature() {
-  if (!isValidPlaceForShuffle())
+  if (!isValidPlaceForShuffle()) {
     return;
+  }
 
   const shuffleButton = `
      <div class="pull-right marLeft10">
@@ -89,13 +97,17 @@ function addButtonShuffleSignature() {
      </div>
   `;
 
-  const domParser = new DOMParser(),
-        html = domParser.parseFromString(shuffleButton, "text/html");
+  const domParser = new DOMParser();
+  const html = domParser.parseFromString(shuffleButton, "text/html");
 
   const firstElement = document.querySelector(".btnWrapper .pull-right");
 
-  if (firstElement)
-    firstElement.parentNode.insertBefore(html.body.firstChild, firstElement.nextSibling);
+  if (firstElement) {
+    firstElement.parentNode.insertBefore(
+      html.body.firstChild,
+      firstElement.nextSibling
+    );
+  }
 }
 
 window.addEventListener("message", shuffleSignature);

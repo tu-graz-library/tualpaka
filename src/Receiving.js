@@ -14,12 +14,14 @@
 function overrideEnterForReceiving() {
   const pageTitle = document.querySelector(".pageTitle").innerText;
 
-  if (pageTitle != "Liste erhaltener Exemplare")
+  if (pageTitle != "Liste erhaltener Exemplare") {
     return;
+  }
 
   const overrideEnter = (event) => {
-    if (event.key != 'Enter')
+    if (event.key != "Enter") {
       return true;
+    }
 
     event.preventDefault();
 
@@ -30,7 +32,7 @@ function overrideEnterForReceiving() {
 
   document
     .querySelectorAll("input.textField")
-    .forEach(ele => ele.addEventListener("keypress", overrideEnter));
+    .forEach((ele) => ele.addEventListener("keypress", overrideEnter));
 }
 
 window.loadingBlockerEvents.push(overrideEnterForReceiving);

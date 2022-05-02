@@ -14,12 +14,12 @@ class TUGMessageHandler {
 
   static tpl(msg, sender, sendResponse) {
     const request = new Request(`/tpl/${msg.data}.tpl`);
-
-    Promise.all([
-      fetch(request).then(x => x.text()),
-    ]).then(([tpl]) => {
+    const fetchAllTemplates = [fetch(request).then((x) => x.text())];
+    const thenDo = ([tpl]) => {
       sendResponse(tpl);
-    });
+    };
+
+    Promise.all(fetchAllTemplates).then(thenDo);
 
     // true is neccessary to use sendResponse in the Promise context
     return true;

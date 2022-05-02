@@ -16,8 +16,9 @@ class Record {
   constructor(data) {
     this.data = data;
 
-    if (this.doSwap())
+    if (this.doSwap()) {
       this.swapSubMain();
+    }
 
     this.setIfTwoOrOneLabel();
     this.beautifySignature();
@@ -32,30 +33,34 @@ class Record {
   }
 
   setIfTwoOrOneLabel() {
-    this._data.beside = this._data.hasOwnProperty('sub');
+    this._data.beside = this._data.hasOwnProperty("sub");
   }
 
   beautifySignature() {
-    if (!/^Z?(I|II|III|IIII|IV)(\+NB)?$/.test(this._data.main.signature[0]))
+    if (!/^Z?(I|II|III|IIII|IV)(\+NB)?$/.test(this._data.main.signature[0])) {
       return;
+    }
 
     const arr = this.addThousandDelimiter(this._data.main.signature[1]);
 
     this._data.main.signature[1] = arr[0];
-    if (arr.length == 2)
+    if (arr.length == 2) {
       this._data.main.signature.splice(2, 0, ...arr.slice(1));
+    }
   }
 
   addThousandDelimiter(signature) {
     let pos = signature.indexOf("/");
     pos = pos === -1 ? signature.length : pos;
 
-    let signatureWithThousandDelimiter = new Intl.NumberFormat('de-DE').format(signature.substring(0, pos)),
-        returnValue = [signatureWithThousandDelimiter];
+    let signatureWithThousandDelimiter = new Intl.NumberFormat("de-DE").format(
+      signature.substring(0, pos)
+    );
+    let returnValue = [signatureWithThousandDelimiter];
 
     if (pos < signature.length) {
-      returnValue[0] += '/';
-      returnValue[1] = signature.substring(pos+1);
+      returnValue[0] += "/";
+      returnValue[1] = signature.substring(pos + 1);
     }
 
     return returnValue;
@@ -66,8 +71,9 @@ class Record {
   }
 
   swapSubMain() {
-    if (!this._data.hasOwnProperty('sub'))
+    if (!this._data.hasOwnProperty("sub")) {
       return;
+    }
 
     [this._data.main, this._data.sub] = [this._data.sub, this._data.main];
   }
@@ -90,23 +96,24 @@ class Book extends Record {
       delete this._data.main.location;
     }
 
-    if (libraryNameContainInstituteNumber && this._data.hasOwnProperty('sub')) {
+    if (libraryNameContainInstituteNumber && this._data.hasOwnProperty("sub")) {
       delete this._data.sub.library;
       delete this._data.sub.location;
     }
   }
 
   addSlashToSignatureIfNecessary() {
-    if (this._data.main.description && this._data.main.signature[1].slice(-1) != '/')
-      this._data.main.signature[1] += '/';
+    if (this._data.main.description && this._data.main.signature[1].slice(-1) != "/") {
+      this._data.main.signature[1] += "/";
+    }
   }
 
   mergeToLongSignature() {
-    if (this._data.main.signature.length > 3)
+    if (this._data.main.signature.length > 3) {
       this._data.main.signature[2] = this._data.main.signature.splice(2).join(" ");
+    }
   }
 }
-
 
 class FHA extends Book {
   constructor(data) {
@@ -118,7 +125,7 @@ class TUGHS extends Book {
   constructor(data) {
     super(data);
 
-    this._data.sub.location.text = 'TUG HS';
+    this._data.sub.location.text = "TUG HS";
   }
 }
 
@@ -138,7 +145,7 @@ class HB03 extends Book {
   constructor(data) {
     super(data);
 
-    this._data.sub.location.text = 'HB 03';
+    this._data.sub.location.text = "HB 03";
   }
 }
 
@@ -146,7 +153,7 @@ class HB22 extends Book {
   constructor(data) {
     super(data);
 
-    this._data.sub.location.text = 'HB 22';
+    this._data.sub.location.text = "HB 22";
   }
 }
 
@@ -154,7 +161,7 @@ class HB21 extends Book {
   constructor(data) {
     super(data);
 
-    this._data.sub.location.text = 'HB 21';
+    this._data.sub.location.text = "HB 21";
   }
 }
 
@@ -167,8 +174,9 @@ class Dissertation extends Book {
     this._data.main.signature.forEach((element, index, signature) => {
       const arr = this.addThousandDelimiter(element);
       signature[index] = arr[0];
-      if (arr.length == 2)
-        signature.splice(index+1, 0, ...arr.slice(1));
+      if (arr.length == 2) {
+        signature.splice(index + 1, 0, ...arr.slice(1));
+      }
     });
   }
 }
@@ -186,7 +194,6 @@ class FacultyLibrary extends Book {
   }
 }
 
-
 class Journal extends Record {
   constructor(data) {
     super(data);
@@ -196,14 +203,15 @@ class Journal extends Record {
   }
 
   removeLocationFromDisplay() {
-    this._data.main.location.style = 'empty';
+    this._data.main.location.style = "empty";
   }
 
   convertInstituteTitle() {
     const number = /\d{4,4}/.exec(this._data.main.library);
 
-    if (number !== null && !isNaN(parseInt(number[0])))
-      this._data.main.library = 'F' + number;
+    if (number !== null && !isNaN(parseInt(number[0]))) {
+      this._data.main.library = `F${number}`;
+    }
   }
 }
 
@@ -212,63 +220,61 @@ class Label {
     this.metadata = metadata;
 
     this.labelArts = new Map([
-      ['Institutsbibliothek', FacultyLibrary],
-      ['FHA', FHA],
-      ['TUGHS', TUGHS],
-      ['ARCH', ARCH],
-      ['LBS', LBS],
-      ['HB03', HB03],
-      ['HB22', HB22],
-      ['HB21', HB21]
+      ["Institutsbibliothek", FacultyLibrary],
+      ["FHA", FHA],
+      ["TUGHS", TUGHS],
+      ["ARCH", ARCH],
+      ["LBS", LBS],
+      ["HB03", HB03],
+      ["HB22", HB22],
+      ["HB21", HB21],
     ]);
   }
 
   get rawData() {
     let data = {};
 
-    if (this.metadata.itemSignature && this.metadata.signature)
+    if (this.metadata.itemSignature && this.metadata.signature) {
       data = {
         main: {
           library: this.metadata["library"],
           signature: this.metadata["itemSignature"],
-          description: this.metadata["description"]
+          description: this.metadata["description"],
         },
         sub: {
           library: this.metadata["library"],
           signature: this.metadata["signature"],
-          location: {text: this.metadata["location"], style: ''}
-        }
+          location: { text: this.metadata["location"], style: "" },
+        },
       };
-
-    else if (this.metadata.signature)
+    } else if (this.metadata.signature) {
       data = {
         main: {
           library: this.metadata["library"],
           signature: this.metadata["signature"],
-          location: {text: this.metadata["location"], style: ''},
-          description: this.metadata["description"]
-        }
+          location: { text: this.metadata["location"], style: "" },
+          description: this.metadata["description"],
+        },
       };
+    }
 
     return data;
   }
 
   retrieveData() {
-    let location = this.metadata["location"],
-        data = this.rawData,
-        record;
+    let location = this.metadata["location"];
+    let data = this.rawData;
+    let record;
 
-    if (data.main.signature[0] == "25000")
+    if (data.main.signature[0] == "25000") {
       record = new Dissertation(data);
-
-    else if (data.main.signature[0][0] == "Z")
+    } else if (data.main.signature[0][0] == "Z") {
       record = new Journal(data);
-
-    else if (this.labelArts.has(location))
+    } else if (this.labelArts.has(location)) {
       record = new (this.labelArts.get(location))(data);
-
-    else
+    } else {
       record = new Book(data);
+    }
 
     return record.data;
   }
@@ -280,43 +286,46 @@ class CollectMetadataFromHtml {
   }
 
   get metadata() {
-    const recordOuterContainer = document.querySelector(`#${this.id}`),
-          rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+    const recordOuterContainer = document.querySelector(`#${this.id}`);
+    const rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
 
     let metadata = {};
 
     for (const rowElement of rowElements) {
       const items = rowElement.innerText.split(":");
 
-      if (items[0].trim() == "Bibliothek")
+      if (items[0].trim() == "Bibliothek") {
         metadata["library"] = items[1].trim();
-
-      if (items[0].trim() == "Signatur")
-        metadata["signature"] = items[1].trim().split(' ');
-
-      if (items[0].trim() == "Exemplarsignatur")
-        metadata["itemSignature"] = items[1].trim().split(' ');
-
+      }
+      if (items[0].trim() == "Signatur") {
+        metadata["signature"] = items[1].trim().split(" ");
+      }
+      if (items[0].trim() == "Exemplarsignatur") {
+        metadata["itemSignature"] = items[1].trim().split(" ");
+      }
       if (items[0].trim() == "Beschreibung") {
-        const parts = items[1].trim().split(',');
+        const parts = items[1].trim().split(",");
 
-        metadata["description"] = isNaN(parseInt(parts.slice(-1))) ? parts : [parts.join(',')];
+        metadata["description"] = isNaN(parseInt(parts.slice(-1)))
+          ? parts
+          : [parts.join(",")];
       }
 
       if (items[0].trim() == "Permanenter Standort") {
         const matches = items[1].match(/\(.*?\)/);
-        if (matches)
-          metadata["location"] = matches[0].replace(/[\(\)]/g, '');
+        if (matches) {
+          metadata["location"] = matches[0].replace(/[\(\)]/g, "");
+        }
 
-        if (items[1].trim() == "Institutsbibliothek")
+        if (items[1].trim() == "Institutsbibliothek") {
           metadata["location"] = items[1].trim();
+        }
       }
     }
 
     return metadata;
   }
 }
-
 
 function addButtonPrintLabel() {
   document.querySelectorAll(".recordOuterContainer").forEach((element) => {
@@ -328,8 +337,8 @@ function addButtonPrintLabel() {
                 </li>
             `;
 
-    const domParser = new DOMParser(),
-          html = domParser.parseFromString(li, "text/html");
+    const domParser = new DOMParser();
+    const html = domParser.parseFromString(li, "text/html");
 
     element.querySelector(".dropdown-menu").appendChild(html.body.firstChild);
   });
@@ -343,16 +352,21 @@ function insertAt(str, pos, sub) {
 // refactor to place such functions in a common file
 
 async function printLabel(message) {
-  if (!message.data || message.data.art != "tug-label")
+  if (!message.data || message.data.art != "tug-label") {
     return;
+  }
 
-  const metadata = new CollectMetadataFromHtml(message.data.id),
-        label = new Label(metadata.metadata),
-        data = label.retrieveData();
+  const metadata = new CollectMetadataFromHtml(message.data.id);
+  const label = new Label(metadata.metadata);
+  const data = label.retrieveData();
 
-  const tag = await browser.runtime.sendMessage({ns: 'tug', action: 'tpl', data: 'label'}),
-        tpl = Handlebars.compile(tag),
-        html = tpl(data);
+  const tag = await browser.runtime.sendMessage({
+    ns: "tug",
+    action: "tpl",
+    data: "label",
+  });
+  const tpl = Handlebars.compile(tag);
+  const html = tpl(data);
 
   printHtml(html);
 }
