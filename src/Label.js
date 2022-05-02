@@ -287,7 +287,7 @@ class CollectMetadataFromHtml {
 
   get metadata() {
     const recordOuterContainer = document.querySelector(`#${this.id}`);
-    const rowElements = recordOuterContainer.querySelectorAll(".col-xs-12");
+    const rowElements = recordOuterContainer.querySelectorAll(".col-md-12");
 
     let metadata = {};
 
