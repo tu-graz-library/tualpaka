@@ -9,6 +9,8 @@
  * This extension only works with the German language package in Alma.
  *
  * The templates for the labels are created for TU Graz.
+ * 
+ * MW - Anpassung an Alma November 2026 Release 
  *
  **/
 
@@ -40,7 +42,6 @@ class Record {
     if (!/^Z?(I|II|III|IIII|IV)(\+NB)?$/.test(this._data.main.signature[0])) {
       return;
     }
-
     const arr = this.addThousandDelimiter(this._data.main.signature[1]);
 
     this._data.main.signature[1] = arr[0];
@@ -233,7 +234,6 @@ class Label {
 
   get rawData() {
     let data = {};
-
     if (this.metadata.itemSignature && this.metadata.signature) {
       data = {
         main: {
@@ -287,60 +287,73 @@ class CollectMetadataFromHtml {
 
   get metadata() {
     const recordOuterContainer = document.querySelector(`#${this.id}`);
-    const rowElements = recordOuterContainer.querySelectorAll(".col-md-12");
-
+    const rowElements = recordOuterContainer.querySelectorAll(".ex-label-value");
     let metadata = {};
 
-    for (const rowElement of rowElements) {
-      const items = rowElement.innerText.split(":");
+    for (const rowElement of rowElements){
+      if (rowElement.querySelectorAll(".sel-label").length > 0){
+        const exlabel = rowElement.querySelector(".sel-label");
+        const exvalue = rowElement.querySelector(".sel-value");
+      
+        if (exlabel.innerText == "Permanente Bibliothek") {
+          metadata["library"] = exvalue.innerText;
+        }
+        if (exlabel.innerText == "Signatur") {
+          metadata["signature"] = exvalue.innerText.split(" ");
+        }
+        if (exlabel.innerText == "Exemplar-Signatur") {
+          metadata["itemSignature"] = exvalue.innerText.split(" ");
+        }
+        if (exlabel.innerText == "Beschreibung") {
+          const parts = exvalue.innerText.split(",");
 
-      if (items[0].trim() == "Bibliothek") {
-        metadata["library"] = items[1].trim();
-      }
-      if (items[0].trim() == "Signatur") {
-        metadata["signature"] = items[1].trim().split(" ");
-      }
-      if (items[0].trim() == "Exemplarsignatur") {
-        metadata["itemSignature"] = items[1].trim().split(" ");
-      }
-      if (items[0].trim() == "Beschreibung") {
-        const parts = items[1].trim().split(",");
-
-        metadata["description"] = isNaN(parseInt(parts.slice(-1)))
-          ? parts
-          : [parts.join(",")];
-      }
-
-      if (items[0].trim() == "Permanenter Standort") {
-        const matches = items[1].match(/\(.*?\)/);
-        if (matches) {
-          metadata["location"] = matches[0].replace(/[\(\)]/g, "");
+          metadata["description"] = isNaN(parseInt(parts.slice(-1)))
+            ? parts
+            : [parts.join(",")];
         }
 
-        if (items[1].trim() == "Institutsbibliothek") {
-          metadata["location"] = items[1].trim();
+        if (exlabel.innerText == "Permanenter Standort") {
+          const matches = exvalue.innerText.match(/\(.*?\)/);
+          if (matches) {
+            metadata["location"] = matches[0].replace(/[\(\)]/g, "");
+          }
+
+          if (exvalue.innerText == "Institutsbibliothek") {
+            metadata["location"] = exvalue.innerText;
+          }
         }
       }
     }
 
     return metadata;
   }
-}
+} 
 
 function addButtonPrintLabel() {
-  document.querySelectorAll(".recordOuterContainer").forEach((element) => {
-    const li = `
-                <li class="rowAction internalRowAction">
-                  <a class="submitUrl dropdown-item" href="#" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
-                    Print Label
-                  </a>
-                </li>
-            `;
+  document.querySelectorAll("ex-new-record").forEach((element) => {
+    
+    const menu = document.querySelector(".menu-item-wrapper");
+    
+    if (!menu) return;
+    if (menu.querySelector("[data-print-label]")) return;
+    
+    const span = `
+                <span class="mat-mdc-tooltip-trigger ng-star-inserted">
+                  <span class="mat-mdc-menu-item-text">
+                    <a class="mat-mdc-menu-item  mat-focus-indicator mat-mdc-tooltip-trigger ex-record-actions-item sel-record-actions-button" href="#" style="text-decoration: none;" onclick="event.preventDefault(); window.postMessage({id: '${element.id}', art: 'tug-label'}, '*'); return false;">
+                      Etikett drucken
+                    </a>
+                  </span>
+                </span>
+            `;  
 
     const domParser = new DOMParser();
-    const html = domParser.parseFromString(li, "text/html");
+    const html = domParser.parseFromString(span, "text/html");
+    const node = html.body.firstChild;
+    node.setAttribute("data-print-label","true")
+    menu.appendChild(node)
 
-    element.querySelector(".dropdown-menu").appendChild(html.body.firstChild);
+
   });
 }
 
@@ -372,4 +385,19 @@ async function printLabel(message) {
 }
 
 window.addEventListener("message", printLabel);
-window.loadingBlockerEvents.push(addButtonPrintLabel);
+
+
+let scheduled = false;
+const observer = new MutationObserver(() => {
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    addButtonPrintLabel();
+  });
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+addButtonPrintLabel(); // erster Versuch
+
+//window.loadingBlockerEvents.push(addButtonPrintLabel);

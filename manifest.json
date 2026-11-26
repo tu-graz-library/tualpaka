@@ -22,6 +22,7 @@
         "src/ShuffleSignature.js",
         "tualpaka.js"
       ],
+      "run_at": "document_idle",
       "all_frames": true
     }
   ],

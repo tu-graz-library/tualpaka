@@ -14,3 +14,27 @@
  **/
 
 window.loadingBlockerEvents = [];
+
+/*
+(function () {
+  let scheduled = false;
+
+  const observer = new MutationObserver(() => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      window.loadingBlockerEvents.forEach((fn) => {
+        try {
+          fn();
+        } catch (e) {
+          console.error("loadingBlockerEvents:", e);
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+  console.log("Observer init!")
+})();
+*/
